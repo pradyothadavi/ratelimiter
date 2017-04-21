@@ -13,7 +13,9 @@ import java.util.concurrent.TimeUnit;
 @Target({ ElementType.METHOD})
 public @interface RateLimit {
 
-    double permits();
+    double permits() default 0;
+
+    String permitsGlobalKey() default "";
 
     long warmUpPeriod() default 0;
 

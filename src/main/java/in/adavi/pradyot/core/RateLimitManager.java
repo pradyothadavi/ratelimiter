@@ -15,11 +15,15 @@ public class RateLimitManager implements Managed {
 
     private Map<String,RateLimiter> rateLimiterMap = new HashMap<String, RateLimiter>();;
 
+    public Map<String, RateLimiter> getRateLimiterMap() {
+        return rateLimiterMap;
+    }
+
     public RateLimiter getRateLimiter(String key) {
         return rateLimiterMap.get(key);
     }
 
-    public void setRateLimiterMap(String key, RateLimiter rateLimiter) {
+    public void setRateLimiter(String key, RateLimiter rateLimiter) {
         this.rateLimiterMap.put(key,rateLimiter);
     }
 

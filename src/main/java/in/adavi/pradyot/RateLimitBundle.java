@@ -2,6 +2,9 @@ package in.adavi.pradyot;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import in.adavi.pradyot.core.DisplayRateLimiterTask;
+import in.adavi.pradyot.core.RateLimitBundleConfiguration;
+import in.adavi.pradyot.core.RateLimitManager;
 import in.adavi.pradyot.core.RateLimitModule;
 import in.adavi.pradyot.filter.RateLimitRegistration;
 import io.dropwizard.Configuration;
@@ -12,15 +15,21 @@ import io.dropwizard.setup.Environment;
 /**
  * Created by pradyot.ha on 20/04/17.
  */
-public class RateLimitBundle implements ConfiguredBundle<Configuration> {
+public abstract class RateLimitBundle<T extends Configuration> implements ConfiguredBundle<T> {
 
-    public void run(final Configuration configuration,final Environment environment) throws Exception {
+    public void run(final T configuration,final Environment environment) throws Exception {
 
-        Injector injector = Guice.createInjector(new RateLimitModule());
+        RateLimitBundleConfiguration rateLimitBundleConfiguration = getRateLimitBundleConfiguration(configuration);
+
+        Injector injector = Guice.createInjector(new RateLimitModule(rateLimitBundleConfiguration));
         environment.jersey().register(injector.getInstance(RateLimitRegistration.class));
+
+        environment.admin().addTask(new DisplayRateLimiterTask(injector.getInstance(RateLimitManager.class)));
     }
 
     public void initialize(Bootstrap<?> bootstrap) {
 
     }
+
+    protected abstract RateLimitBundleConfiguration getRateLimitBundleConfiguration(T configuration);
 }
