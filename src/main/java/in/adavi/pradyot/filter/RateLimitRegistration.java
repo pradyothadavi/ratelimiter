@@ -51,7 +51,7 @@ public class RateLimitRegistration implements DynamicFeature {
             }
             Double permits;
             String rateLimiterKey = null;
-            String globalKey = rateLimit.permitsGlobalKey();
+            String globalKey = rateLimit.permitsGroupKey();
             RateParam rateParam = rateLimit.rateParam();
             if(hasGlobalPermit(globalKey))
             {
@@ -93,7 +93,7 @@ public class RateLimitRegistration implements DynamicFeature {
     void validate(RateLimit rateLimit) throws IllegalStateException{
 
         Double permits = rateLimit.localPermits();
-        String globalKey = rateLimit.permitsGlobalKey();
+        String globalKey = rateLimit.permitsGroupKey();
 
         /**
          * Neither global key nor local permits specified

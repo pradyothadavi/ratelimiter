@@ -20,7 +20,10 @@ public abstract class RateLimitBundle<T extends Configuration> implements Config
     public void run(final T configuration,final Environment environment) throws Exception {
 
         RateLimitBundleConfiguration rateLimitBundleConfiguration = getRateLimitBundleConfiguration(configuration);
-
+        if(null == rateLimitBundleConfiguration)
+        {
+            rateLimitBundleConfiguration = new RateLimitBundleConfiguration();
+        }
         Injector injector = Guice.createInjector(new RateLimitModule(rateLimitBundleConfiguration));
         environment.jersey().register(injector.getInstance(RateLimitRegistration.class));
 

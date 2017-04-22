@@ -40,9 +40,9 @@ public class RateLimitFilter implements ContainerRequestFilter {
 
         if(null != rateLimit) {
             String rateLimiterKey = null;
-            if(isNotEmpty(rateLimit.permitsGlobalKey()))
+            if(isNotEmpty(rateLimit.permitsGroupKey()))
             {
-                rateLimiterKey = rateLimit.permitsGlobalKey();
+                rateLimiterKey = rateLimit.permitsGroupKey();
             } else {
                 if(hasClientRateParam(rateLimit.rateParam())){
                     String clientId = containerRequestContext.getHeaderString("X-Client-Id");

@@ -17,7 +17,7 @@ public @interface RateLimit {
 
     double localPermits() default 0;
 
-    String permitsGlobalKey() default "";
+    String permitsGroupKey() default "";
 
     long warmUpPeriod() default 0;
 
