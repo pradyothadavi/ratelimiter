@@ -14,11 +14,11 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.container.DynamicFeature;
 import javax.ws.rs.container.ResourceInfo;
 import javax.ws.rs.core.FeatureContext;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import static in.adavi.pradyot.core.Util.*;
+
 
 
 /**
@@ -55,7 +55,7 @@ public class RateLimitRegistration implements DynamicFeature {
             RateParam rateParam = rateLimit.rateParam();
             if(hasGlobalPermit(globalKey))
             {
-                if(hasClientRateParam(rateParam))
+                if(hasClientRateParam(rateParam) && false)
                 {
                     List<ClientParam> clientParams = new ArrayList<ClientParam>();
                     ClientParam[] annoClientParams = rateParam.clients();
@@ -110,7 +110,7 @@ public class RateLimitRegistration implements DynamicFeature {
             String exceptionMsg = "Both global key and local localPermits specified";
             throw new IllegalStateException(exceptionMsg);
         }
-
+        
         /**
          * Global localPermits value missing from configuration but global key specified
          */
@@ -124,16 +124,5 @@ public class RateLimitRegistration implements DynamicFeature {
         if(rateLimitBundleConfiguration.containsKey(value))
             return true;
         return false;
-    }
-
-    boolean hasDefaultClient(RateParam rateParam){
-        ClientParam[] clientParams = rateParam.clients();
-        if(1 == clientParams.length && isEmpty(clientParams[0].name()))
-            return true;
-        return false;
-    }
-
-    boolean hasClientRateParam(RateParam rateParam){
-        return !hasDefaultClient(rateParam);
     }
 }

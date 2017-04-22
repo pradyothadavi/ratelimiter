@@ -14,6 +14,7 @@ import javax.ws.rs.container.ResourceInfo;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 
+import static in.adavi.pradyot.core.Util.hasClientRateParam;
 import static in.adavi.pradyot.core.Util.isNotEmpty;
 
 /**
@@ -43,7 +44,12 @@ public class RateLimitFilter implements ContainerRequestFilter {
             {
                 rateLimiterKey = rateLimit.permitsGlobalKey();
             } else {
-                rateLimiterKey = method.getMethod().getName();
+                if(hasClientRateParam(rateLimit.rateParam())){
+                    String clientId = containerRequestContext.getHeaderString("X-Client-Id");
+                    rateLimiterKey = method.getMethod().getName()+":"+clientId;
+                } else {
+                    rateLimiterKey = method.getMethod().getName();
+                }
             }
             RateLimiter rateLimiter = rateLimitManager.getRateLimiter(rateLimiterKey);
             if(null != rateLimiter){
