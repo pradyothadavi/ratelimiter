@@ -10,6 +10,7 @@ A dropwizard bundle for rate limiting APIs
 YAML file containing application configuration
 ```yaml
 ratelimiter:
+  # JsonProperty of the HashMap present in RateLimitBundleConfiguration class
   groupKeyPermitsMap:
     groupkey1: 100
     groupkey2: 200
@@ -27,6 +28,7 @@ public class MyConfiguration extends Configuration
     }
 }
 ```
+
 ```java
 public class MyApplication extends Application<MyConfiguration> 
 {
