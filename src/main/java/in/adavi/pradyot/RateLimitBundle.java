@@ -25,6 +25,8 @@ public abstract class RateLimitBundle<T extends Configuration> implements Config
         environment.jersey().register(injector.getInstance(RateLimitRegistration.class));
 
         environment.admin().addTask(new DisplayRateLimiterTask(injector.getInstance(RateLimitManager.class)));
+
+        environment.lifecycle().manage(injector.getInstance(RateLimitManager.class));
     }
 
     public void initialize(Bootstrap<?> bootstrap) {
