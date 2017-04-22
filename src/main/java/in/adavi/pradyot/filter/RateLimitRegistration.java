@@ -65,7 +65,7 @@ public class RateLimitRegistration implements DynamicFeature {
                 } else {
                     permits = rateLimitBundleConfiguration.getGroupKeyPermits(globalKey);
                     rateLimiterKey = globalKey;
-                    RateLimiter rateLimiter = RateLimiter.create(permits, rateLimit.warmUpPeriod(), rateLimit.timeUnit());
+                    RateLimiter rateLimiter = RateLimiter.create(permits);
                     rateLimitManager.setRateLimiter(rateLimiterKey, rateLimiter);
                 }
             } else {
@@ -76,13 +76,13 @@ public class RateLimitRegistration implements DynamicFeature {
                     for (ClientParam clientParam : annoClientParams) {
                         permits = (rateLimit.localPermits()*clientParam.percent())/100;
                         rateLimiterKey = method.getMethod().getName()+":"+ clientParam.name();
-                        RateLimiter rateLimiter = RateLimiter.create(permits, rateLimit.warmUpPeriod(), rateLimit.timeUnit());
+                        RateLimiter rateLimiter = RateLimiter.create(permits);
                         rateLimitManager.setRateLimiter(rateLimiterKey, rateLimiter);
                     }
                 } else {
                     permits = rateLimit.localPermits();
                     rateLimiterKey = method.getMethod().getName();
-                    RateLimiter rateLimiter = RateLimiter.create(permits, rateLimit.warmUpPeriod(), rateLimit.timeUnit());
+                    RateLimiter rateLimiter = RateLimiter.create(permits);
                     rateLimitManager.setRateLimiter(rateLimiterKey, rateLimiter);
                 }
             }

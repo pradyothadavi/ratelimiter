@@ -55,7 +55,7 @@ public class RateLimitFilter implements ContainerRequestFilter {
             if(null != rateLimiter){
                 if(!rateLimiter.tryAcquire()){
                     Exception cause = new IllegalAccessException("Too many requests trying to access "+method.getMethod().getName());
-                    throw new WebApplicationException(cause, Response.Status.fromStatusCode(TOO_MANY_REQUESTS));
+                    throw new WebApplicationException(cause, Response.status(TOO_MANY_REQUESTS).build());
                 }
             }
         }
