@@ -7,8 +7,15 @@ A dropwizard bundle for rate limiting APIs
 public class MyApplication extends Application<MyConfiguration> 
 {
   @Override
-  public void initialize(Bootstrap<TijoriConfiguration> bootstrap){
-    bootstrap.addBundle(new RateLimitBundle());
+  public void initialize(Bootstrap<MyConfiguration> bootstrap){
+    bootstrap.addBundle(new RateLimitBundle<MyConfiguration>()
+    {
+      @Override
+      protected RateLimitBundleConfiguration getRateLimitBundleConfiguration(
+                    MyConfiguration myConfiguration) {
+        return myConfiguration.getRateLimitBundleConfiguration;
+      }
+    });
   }
 }
 ```
