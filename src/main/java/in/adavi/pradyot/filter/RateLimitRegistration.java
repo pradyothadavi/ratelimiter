@@ -63,7 +63,7 @@ public class RateLimitRegistration implements DynamicFeature {
                         clientParams.add(clientParam);
                     }
                 } else {
-                    permits = rateLimitBundleConfiguration.getGlobalPermits(globalKey);
+                    permits = rateLimitBundleConfiguration.getGroupKeyPermits(globalKey);
                     rateLimiterKey = globalKey;
                     RateLimiter rateLimiter = RateLimiter.create(permits, rateLimit.warmUpPeriod(), rateLimit.timeUnit());
                     rateLimitManager.setRateLimiter(rateLimiterKey, rateLimiter);
@@ -110,7 +110,7 @@ public class RateLimitRegistration implements DynamicFeature {
             String exceptionMsg = "Both global key and local localPermits specified";
             throw new IllegalStateException(exceptionMsg);
         }
-        
+
         /**
          * Global localPermits value missing from configuration but global key specified
          */

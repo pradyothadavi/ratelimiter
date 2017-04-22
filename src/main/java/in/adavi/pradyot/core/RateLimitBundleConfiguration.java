@@ -8,25 +8,25 @@ import java.util.Map;
  */
 public class RateLimitBundleConfiguration {
 
-    private Map<String,Double> globalKeyPermitsMap = new HashMap<String, Double>();
+    private Map<String,Double> groupKeyPermitsMap = new HashMap<String, Double>();
 
-    public Map<String, Double> getGlobalKeyPermitsMap() {
-        return globalKeyPermitsMap;
+    public Map<String, Double> getGroupKeyPermitsMap() {
+        return groupKeyPermitsMap;
     }
 
-    public void setGlobalKeyPermitsMap(Map<String, Double> globalKeyPermitsMap) {
-        this.globalKeyPermitsMap = globalKeyPermitsMap;
+    public void setGroupKeyPermitsMap(Map<String, Double> groupKeyPermitsMap) {
+        this.groupKeyPermitsMap = groupKeyPermitsMap;
     }
 
-    public Double getGlobalPermits(String key) {
-        return globalKeyPermitsMap.get(key);
+    public Double getGroupKeyPermits(String key) {
+        return groupKeyPermitsMap.get(key);
     }
 
-    public void setGlobalPermits(String key, Double permits) {
-        globalKeyPermitsMap.put(key, permits);
+    public void setGroupKeyPermits(String key, Double permits) {
+        groupKeyPermitsMap.put(key, permits);
     }
 
     public boolean containsKey(String key) {
-        return globalKeyPermitsMap.containsKey(key);
+        return groupKeyPermitsMap.containsKey(key);
     }
 }

@@ -16,7 +16,7 @@ import java.util.Map;
 public class RateLimitManager implements Managed {
 
     private Map<String,RateLimiter> rateLimiterMap = new HashMap<String, RateLimiter>();
-    private Map<String,List<ClientParam>> globalRateKeyToClientsMap = new HashMap<String, List<ClientParam>>();
+    private Map<String,List<ClientParam>> groupKeyToClientsMap = new HashMap<String, List<ClientParam>>();
     private RateLimitBundleConfiguration rateLimitBundleConfiguration;
 
     public RateLimitManager(RateLimitBundleConfiguration rateLimitBundleConfiguration) {
@@ -35,34 +35,34 @@ public class RateLimitManager implements Managed {
         this.rateLimiterMap.put(key,rateLimiter);
     }
 
-    public Map<String, List<ClientParam>> getGlobalRateKeyToClientsMap() {
-        return globalRateKeyToClientsMap;
+    public Map<String, List<ClientParam>> getGroupKeyToClientsMap() {
+        return groupKeyToClientsMap;
     }
 
     public List<ClientParam> getClients(String globalRateKey){
-        return this.globalRateKeyToClientsMap.get(globalRateKey);
+        return this.groupKeyToClientsMap.get(globalRateKey);
     }
 
     public void setClients(String globalRateKey,List<ClientParam> clientParams){
-        if(this.globalRateKeyToClientsMap.containsKey(globalRateKey))
+        if(this.groupKeyToClientsMap.containsKey(globalRateKey))
         {
-            List<ClientParam> existingClientParams = this.getGlobalRateKeyToClientsMap().get(globalRateKey);
+            List<ClientParam> existingClientParams = this.getGroupKeyToClientsMap().get(globalRateKey);
             existingClientParams.addAll(clientParams);
-            globalRateKeyToClientsMap.put(globalRateKey, existingClientParams);
+            groupKeyToClientsMap.put(globalRateKey, existingClientParams);
         } else {
-            this.globalRateKeyToClientsMap.put(globalRateKey, clientParams);
+            this.groupKeyToClientsMap.put(globalRateKey, clientParams);
         }
     }
 
     public void start() throws Exception {
-        if(!globalRateKeyToClientsMap.isEmpty()){
+        if(!groupKeyToClientsMap.isEmpty()){
             createRateLimiters();
         }
     }
 
     private void createRateLimiters() {
-        for (Map.Entry<String,List<ClientParam>> entry : globalRateKeyToClientsMap.entrySet()) {
-            Double globalPermits = rateLimitBundleConfiguration.getGlobalPermits(entry.getKey());
+        for (Map.Entry<String,List<ClientParam>> entry : groupKeyToClientsMap.entrySet()) {
+            Double globalPermits = rateLimitBundleConfiguration.getGroupKeyPermits(entry.getKey());
             for (ClientParam clientParam : entry.getValue()) {
                 Double permits = (globalPermits*clientParam.percent())/100;
                 String rateLimiterKey = entry.getKey()+":"+ clientParam.name();
