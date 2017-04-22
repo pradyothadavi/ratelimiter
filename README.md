@@ -104,6 +104,11 @@ public class MyResource{
     }
 }
 ```
-client1 would have 200qps rate limit
-client2 would have 8000qps rate limit
+client1 would have 200qps rate limit.
+
+client2 would have 8000qps rate limit.
+
 Based on the X-Client-Id header, the permits would be granted.
+
+#### Display rate limiters
+http://host:admin_port/admin/tasks/display-rate-limiter
