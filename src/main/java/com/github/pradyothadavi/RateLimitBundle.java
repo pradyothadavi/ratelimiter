@@ -1,12 +1,12 @@
-package in.adavi.pradyot;
+package com.github.pradyothadavi;
 
+import com.github.pradyothadavi.core.RateLimitBundleConfiguration;
+import com.github.pradyothadavi.core.RateLimitManager;
+import com.github.pradyothadavi.core.RateLimitModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import in.adavi.pradyot.core.DisplayRateLimiterTask;
-import in.adavi.pradyot.core.RateLimitBundleConfiguration;
-import in.adavi.pradyot.core.RateLimitManager;
-import in.adavi.pradyot.core.RateLimitModule;
-import in.adavi.pradyot.filter.RateLimitRegistration;
+import com.github.pradyothadavi.core.DisplayRateLimiterTask;
+import com.github.pradyothadavi.core.RateLimitRegistration;
 import io.dropwizard.Configuration;
 import io.dropwizard.ConfiguredBundle;
 import io.dropwizard.setup.Bootstrap;
@@ -28,8 +28,6 @@ public abstract class RateLimitBundle<T extends Configuration> implements Config
         environment.jersey().register(injector.getInstance(RateLimitRegistration.class));
 
         environment.admin().addTask(new DisplayRateLimiterTask(injector.getInstance(RateLimitManager.class)));
-
-        environment.lifecycle().manage(injector.getInstance(RateLimitManager.class));
     }
 
     public void initialize(Bootstrap<?> bootstrap) {

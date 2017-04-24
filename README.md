@@ -10,39 +10,49 @@ A dropwizard bundle for rate limiting APIs
 
 YAML file containing application configuration
 ```yaml
-ratelimiter:
-  # JsonProperty of the HashMap present in RateLimitBundleConfiguration class
-  groupKeyPermitsMap:
-    groupkey1: 100
-    groupkey2: 200
+rateLimiter:
+  groupLimits:
+    group: 15
+  namedLimits:
+    client1.ratelimit: 5
 ```
 
 ```java
-public class MyConfiguration extends Configuration
-{
-    private RateLimitBundleConfiguration rateLimitBundleConfiguration;
-    
-    @JsonProperty("ratelimiter")
-    public RateLimitBundleConfiguration getRateLimitBundleConfiguration() {
-        return rateLimitBundleConfiguration;
+public class RateLimitApp extends Application<RateLimitConfiguration> {
+
+    @Override
+    public void initialize(Bootstrap<RateLimitConfiguration> bootstrap) {
+        super.initialize(bootstrap);
+
+        bootstrap.addBundle(new RateLimitBundle<RateLimitConfiguration>() {
+            @Override
+            protected RateLimitBundleConfiguration getRateLimitBundleConfiguration(RateLimitConfiguration configuration) {
+                return configuration.getRateLimitBundleConfiguration();
+            }
+        });
+    }
+
+    public void run(RateLimitConfiguration rateLimitConfiguration, Environment environment) throws Exception {
+        environment.jersey().register(new RateLimitDemoResource());
+        environment.jersey().register(new RateLimitByGroupDemoResource());
+        environment.jersey().register(new RateLimitByHeaderDemoResource());
     }
 }
 ```
 
 ```java
-public class MyApplication extends Application<MyConfiguration> 
-{
-  @Override
-  public void initialize(Bootstrap<MyConfiguration> bootstrap){
-      
-     bootstrap.addBundle(new RateLimitBundle<MyConfiguration>(){
-                 
-         @Override
-         protected RateLimitBundleConfiguration getRateLimitBundleConfiguration(MyConfiguration myConfiguration) {    
-            return myConfiguration.getRateLimitBundleConfiguration();
-         }
-     });
-  }
+public class RateLimitConfiguration extends Configuration {
+
+    private RateLimitBundleConfiguration rateLimitBundleConfiguration;
+
+    @JsonProperty("rateLimiter")
+    public RateLimitBundleConfiguration getRateLimitBundleConfiguration() {
+        return rateLimitBundleConfiguration;
+    }
+
+    public void setRateLimitBundleConfiguration(RateLimitBundleConfiguration rateLimitBundleConfiguration) {
+        this.rateLimitBundleConfiguration = rateLimitBundleConfiguration;
+    }
 }
 ```
 
@@ -51,13 +61,13 @@ public class MyApplication extends Application<MyConfiguration>
 #### 1. Rate limiting individual API
 
 ```java
-@Path("/myresource")
-public class MyResource{
-    
+@Path("/ratelimit")
+public class RateLimitDemoResource {
+
     @GET
-    @RateLimit(localPermits = 100)
+    @RateLimit(ratePerSecond = 3)
     public Response getSomething(){
-        
+        return Response.ok().build();
     }
 }
 ```
@@ -77,38 +87,30 @@ public class MyResource{
 ```
 
 ```java
-@Path("/myresource2")
-public class MyResource{
-    
-    @POST
-    @RateLimit(permitsGroupKey = "groupkey1")
-    public Response postSomething(){
-        
+@Path("/ratelimitbygroup")
+public class RateLimitByGroupDemoResource {
+
+    @GET
+    @RateLimitByGroup("group")
+    public Response getSomething(){
+        return Response.ok().build();
     }
 }
 ```
-
-getSomething() + postSomething() together are allowed 100qps
 
 #### 3. Rate limiting individual API based on client distribution
 
 ```java
-@Path("/myresource1")
-public class MyResource{
-    
+@Path("/ratelimitbyheader")
+public class RateLimitByHeaderDemoResource {
+
     @GET
-    @RateLimit(rateParam = @RateParam(clients = {@ClientParam(name = "client1", percent = 20),@ClientParam(name = 
-    "client2", percent = 80)}),localPermits = 1000)
+    @RateLimitByHeader(header = "X-Client-Id", rateLimits = {@HeaderValue(value = "client1", nameLimit = "client1.ratelimit"),@HeaderValue(value = "client2", ratePerSecond = 20)})
     public Response getSomething(){
-        
+        return Response.ok().build();
     }
 }
 ```
-client1 would have 200qps rate limit.
-
-client2 would have 8000qps rate limit.
-
-Based on the X-Client-Id header, the permits would be granted.
 
 #### Display rate limiters
 http://host:admin_port/admin/tasks/display-rate-limiter

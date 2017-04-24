@@ -1,25 +1,17 @@
-package in.adavi.pradyot.annotation;
+package com.github.pradyothadavi.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.concurrent.TimeUnit;
 
 /**
+ * Rate limiting based on the value mentioned
  * Created by pradyot.ha on 20/04/17.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.METHOD})
 public @interface RateLimit {
 
-    RateParam rateParam() default @RateParam();
-
-    double localPermits() default 0;
-
-    String permitsGroupKey() default "";
-
-    long warmUpPeriod() default 0;
-
-    TimeUnit timeUnit() default TimeUnit.SECONDS;
+    double ratePerSecond();
 }

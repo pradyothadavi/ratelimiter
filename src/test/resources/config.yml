@@ -1,0 +1,23 @@
+server:
+  type: default
+  applicationContextPath: /rate-limiter
+  adminContextPath: /admin
+  applicationConnectors:
+    - type: http
+      port: 19090
+  adminConnectors:
+    - type: http
+      port: 19091
+
+logging:
+
+  level: INFO
+
+  appenders:
+    - type: console
+
+rateLimiter:
+  groupLimits:
+    group: 15
+  namedLimits:
+    client1.ratelimit: 5
