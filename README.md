@@ -113,4 +113,4 @@ public class RateLimitByHeaderDemoResource {
 ```
 
 #### Display rate limiters
-http://host:admin_port/admin/tasks/display-rate-limiter
+http://host:admin_port/admin/tasks/rateLimiter
