@@ -1,4 +1,4 @@
-package in.adavi.pradyot.core;
+package com.github.pradyothadavi.core;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -17,12 +17,6 @@ public class RateLimitModule extends AbstractModule {
 
     public RateLimitModule(RateLimitBundleConfiguration rateLimitBundleConfiguration) {
         this.rateLimitBundleConfiguration = rateLimitBundleConfiguration;
-    }
-
-    @Provides
-    @Singleton
-    public RateLimitManager rateLimitManagerProvider(){
-        return new RateLimitManager(rateLimitBundleConfiguration);
     }
 
     @Provides

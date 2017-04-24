@@ -1,4 +1,4 @@
-package in.adavi.pradyot;
+package com.github.pradyothadavi;
 
 import junit.framework.Test;
 import junit.framework.TestCase;

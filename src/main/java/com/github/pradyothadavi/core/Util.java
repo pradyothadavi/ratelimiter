@@ -1,7 +1,8 @@
-package in.adavi.pradyot.core;
+package com.github.pradyothadavi.core;
 
-import in.adavi.pradyot.annotation.ClientParam;
-import in.adavi.pradyot.annotation.RateParam;
+import com.github.pradyothadavi.annotation.RateLimit;
+import com.github.pradyothadavi.annotation.RateLimitByGroup;
+import com.github.pradyothadavi.annotation.RateLimitByHeader;
 
 /**
  * Created by pradyot.ha on 21/04/17.
@@ -29,14 +30,15 @@ public class Util {
         return !isZero(value);
     }
 
-    public static boolean hasDefaultClient(RateParam rateParam){
-        ClientParam[] clientParams = rateParam.clients();
-        if(1 == clientParams.length && isEmpty(clientParams[0].name()))
-            return true;
-        return false;
+    public static boolean isPresent(RateLimit rateLimit){
+        return !(null == rateLimit);
     }
 
-    public static boolean hasClientRateParam(RateParam rateParam){
-        return !hasDefaultClient(rateParam);
+    public static boolean isPresent(RateLimitByGroup rateLimitByGroup){
+        return!(null == rateLimitByGroup);
+    }
+
+    public static boolean isPresent(RateLimitByHeader rateLimitByHeader){
+        return !(null == rateLimitByHeader);
     }
 }

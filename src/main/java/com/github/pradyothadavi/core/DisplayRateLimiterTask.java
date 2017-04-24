@@ -1,4 +1,4 @@
-package in.adavi.pradyot.core;
+package com.github.pradyothadavi.core;
 
 import com.google.common.collect.ImmutableMultimap;
 import com.google.inject.Inject;
@@ -15,12 +15,13 @@ public class DisplayRateLimiterTask extends Task {
 
     @Inject
     public DisplayRateLimiterTask(RateLimitManager rateLimitManager) {
-        super("display-rate-limiter");
+        super("rateLimiter");
         this.rateLimitManager = rateLimitManager;
     }
 
     public void execute(ImmutableMultimap<String, String> immutableMultimap, PrintWriter printWriter) throws Exception {
-        printWriter.print(this.rateLimitManager.getRateLimiterMap().toString());
+        printWriter.println(this.rateLimitManager.getRateLimiterMap().toString());
+        printWriter.println(this.rateLimitManager.getMethodToRateLimitKeyMap().toString());
         printWriter.flush();
     }
 }
