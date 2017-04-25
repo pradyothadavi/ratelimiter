@@ -31,14 +31,20 @@ public class RateLimitFilter implements ContainerRequestFilter {
 
     public void filter(ContainerRequestContext containerRequestContext) throws IOException {
 
+      if(null != resourceInfo){
         RateLimitKey rateLimitKey = rateLimitManager.getRateLimitKey(resourceInfo.getResourceMethod().getName());
-        String rateLimiterKey = rateLimitKey.computeKey(resourceInfo,containerRequestContext);
-        RateLimiter rateLimiter = rateLimitManager.getRateLimiter(rateLimiterKey);
-        if(null != rateLimiter){
-            if(!rateLimiter.tryAcquire()){
+        if(null != rateLimitKey){
+          String rateLimiterKey = rateLimitKey.computeKey(resourceInfo,containerRequestContext);
+          if(null != rateLimiterKey) {
+            RateLimiter rateLimiter = rateLimitManager.getRateLimiter(rateLimiterKey);
+            if(null != rateLimiter){
+              if(!rateLimiter.tryAcquire()){
                 Exception cause = new IllegalAccessException("Too many requests trying to access "+resourceInfo.getResourceMethod().getName());
                 throw new WebApplicationException(cause, Response.status(TOO_MANY_REQUESTS).build());
+              }
             }
+          }
         }
+      }
     }
 }
