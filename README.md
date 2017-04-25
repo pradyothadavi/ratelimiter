@@ -75,18 +75,6 @@ public class RateLimitDemoResource {
 #### 2. Rate limiting group of APIs
 
 ```java
-@Path("/myresource1")
-public class MyResource{
-    
-    @GET
-    @RateLimit(permitsGroupKey = "groupkey1")
-    public Response getSomething(){
-        
-    }
-}
-```
-
-```java
 @Path("/ratelimitbygroup")
 public class RateLimitByGroupDemoResource {
 
@@ -98,7 +86,19 @@ public class RateLimitByGroupDemoResource {
 }
 ```
 
-#### 3. Rate limiting individual API based on client distribution
+```java
+@Path("/ratelimitbygroup2")
+public class RateLimitByGroupDemoResource2 {
+
+    @GET
+    @RateLimitByGroup("group")
+    public Response getSomething2(){
+        return Response.ok().build();
+    }
+}
+```
+getSomething() and getSomething2() put together has rate limit of 15.
+#### 3. Rate limiting individual API based on header
 
 ```java
 @Path("/ratelimitbyheader")
@@ -113,4 +113,4 @@ public class RateLimitByHeaderDemoResource {
 ```
 
 #### Display rate limiters
-http://host:admin_port/admin/tasks/display-rate-limiter
+http://host:admin_port/admin/tasks/rateLimiter

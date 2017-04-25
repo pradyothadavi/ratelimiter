@@ -44,4 +44,10 @@ public class RateLimitKey {
         }
         return key;
     }
+
+    @Override
+    public String toString() {
+        return "RateLimitKey{" + "rateLimitAttribute=" + rateLimitAttribute + ", attributeValue='" + attributeValue + '\'' + '}';
+    }
+
 }
