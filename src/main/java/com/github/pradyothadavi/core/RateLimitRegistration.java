@@ -70,6 +70,8 @@ public class RateLimitRegistration implements DynamicFeature {
         rateLimitKey.setRateLimitAttribute(RateLimitAttribute.HEADER);
         rateLimitKey.setAttributeValue(rateLimitByHeader.header());
 
+        String key = null;
+        RateLimiter rateLimiter = null;
         HeaderValue[] rateLimits = rateLimitByHeader.rateLimits();
         for (HeaderValue headerValue: rateLimits) {
 
@@ -77,8 +79,7 @@ public class RateLimitRegistration implements DynamicFeature {
             if(!atmostOneParam){
                 throw new IllegalStateException("Atmost one param(nameLimit and ratePerSecond) must be specified for @HeaderValue in method "+method.getMethod().getName());
             }
-            RateLimiter rateLimiter = null;
-            String key = method.getMethod().getName()+ Constant.COLON+headerValue.value();
+            key = method.getMethod().getName()+ Constant.COLON+headerValue.value();
             if(Util.isNotEmpty(headerValue.nameLimit())) {
                 rateLimiter = RateLimiter.create(rateLimitBundleConfiguration.getNamedLimit(headerValue.nameLimit()));
             }
@@ -88,6 +89,7 @@ public class RateLimitRegistration implements DynamicFeature {
             rateLimitManager.setRateLimiter(key,rateLimiter);
         }
         rateLimitManager.setRateLimitKey(method.getMethod().getName(),rateLimitKey);
+        logger.info("Key : {} RateLimiter : {} for method : {}",key,rateLimiter,method.getMethod().getName());
     }
 
     private void registerRateLimitByGroup(AnnotatedMethod method, RateLimitByGroup rateLimitByGroup) {
@@ -100,6 +102,7 @@ public class RateLimitRegistration implements DynamicFeature {
 
         rateLimitManager.setRateLimiter(key,rateLimiter);
         rateLimitManager.setRateLimitKey(method.getMethod().getName(),rateLimitKey);
+        logger.info("Key : {} RateLimiter : {} for method : {}",key,rateLimiter,method.getMethod().getName());
     }
 
     private void registerRateLimit(AnnotatedMethod method, RateLimit rateLimit) {
@@ -111,12 +114,18 @@ public class RateLimitRegistration implements DynamicFeature {
 
         rateLimitManager.setRateLimiter(key,rateLimiter);
         rateLimitManager.setRateLimitKey(method.getMethod().getName(),rateLimitKey);
+        logger.info("Key : {} RateLimiter : {} for method : {}",key,rateLimiter,method.getMethod().getName());
     }
 
     private void validate(RateLimit rateLimit, RateLimitByGroup rateLimitByGroup, RateLimitByHeader rateLimitByHeader) {
-
-        boolean atmostOneHeader = Util.isPresent(rateLimit) ^ Util.isPresent(rateLimitByGroup) ^ Util.isPresent(rateLimitByHeader);
-        if(!atmostOneHeader){
+        boolean valid = false;
+        if(!Util.isPresent(rateLimit) && !Util.isPresent(rateLimitByGroup) && !Util.isPresent(rateLimitByHeader) ||
+            !Util.isPresent(rateLimit) && !Util.isPresent(rateLimitByGroup) && Util.isPresent(rateLimitByHeader) ||
+            !Util.isPresent(rateLimit) && Util.isPresent(rateLimitByGroup) && !Util.isPresent(rateLimitByHeader) ||
+            Util.isPresent(rateLimit) && !Util.isPresent(rateLimitByGroup) && !Util.isPresent(rateLimitByHeader)){
+                valid = true;
+        }
+        if(!valid){
             throw new IllegalStateException("Atmost one annotation needs to be specified among [@RateLimit, @RateLimitByGroup and @RateLimitByHeader]");
         }
     }

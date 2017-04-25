@@ -21,6 +21,11 @@ public class RateLimitModule extends AbstractModule {
 
     @Provides
     @Singleton
+    public RateLimitManager rateLimitManagerProvider(){
+        return new RateLimitManager();
+    }
+    @Provides
+    @Singleton
     public RateLimitBundleConfiguration rateLimitBundleConfigurationProvider(){
         return rateLimitBundleConfiguration;
     }
