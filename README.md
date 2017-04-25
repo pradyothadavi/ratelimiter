@@ -75,18 +75,6 @@ public class RateLimitDemoResource {
 #### 2. Rate limiting group of APIs
 
 ```java
-@Path("/myresource1")
-public class MyResource{
-    
-    @GET
-    @RateLimit(permitsGroupKey = "groupkey1")
-    public Response getSomething(){
-        
-    }
-}
-```
-
-```java
 @Path("/ratelimitbygroup")
 public class RateLimitByGroupDemoResource {
 
