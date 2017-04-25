@@ -98,6 +98,18 @@ public class RateLimitByGroupDemoResource {
 }
 ```
 
+```java
+@Path("/ratelimitbygroup2")
+public class RateLimitByGroupDemoResource2 {
+
+    @GET
+    @RateLimitByGroup("group")
+    public Response getSomething2(){
+        return Response.ok().build();
+    }
+}
+```
+getSomething() and getSomething2() put together has rate limit of 15.
 #### 3. Rate limiting individual API based on client distribution
 
 ```java
