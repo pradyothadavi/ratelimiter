@@ -1,6 +1,8 @@
 # ratelimiter
 A dropwizard bundle for rate limiting APIs
 
+[![Build Status](https://travis-ci.org/pradyothadavi/ratelimiter.svg?branch=master)](https://travis-ci.org/pradyothadavi/ratelimiter)
+
 ### Supported Features
 1. Rate limiting a group of APIs
 2. Rate limiting individual APIs
