@@ -3,6 +3,7 @@ package com.github.pradyothadavi.core;
 import com.github.pradyothadavi.annotation.RateLimit;
 import com.github.pradyothadavi.annotation.RateLimitByGroup;
 import com.github.pradyothadavi.annotation.RateLimitByHeader;
+import com.github.pradyothadavi.annotation.RateLimitByNamedHeader;
 
 /**
  * Created by pradyot.ha on 21/04/17.
@@ -40,5 +41,9 @@ public class Util {
 
     public static boolean isPresent(RateLimitByHeader rateLimitByHeader){
         return !(null == rateLimitByHeader);
+    }
+
+    public static boolean isPresent(RateLimitByNamedHeader rateLimitByNamedHeader){
+        return !(null == rateLimitByNamedHeader);
     }
 }

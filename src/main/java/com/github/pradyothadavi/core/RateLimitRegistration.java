@@ -1,9 +1,8 @@
 package com.github.pradyothadavi.core;
 
-import com.github.pradyothadavi.annotation.HeaderValue;
-import com.github.pradyothadavi.annotation.RateLimit;
-import com.github.pradyothadavi.annotation.RateLimitByGroup;
-import com.github.pradyothadavi.annotation.RateLimitByHeader;
+import com.github.pradyothadavi.annotation.*;
+import com.github.pradyothadavi.core.configuration.HeaderValueLimitMap;
+import com.github.pradyothadavi.core.configuration.RateLimitBundleConfiguration;
 import com.github.pradyothadavi.filter.RateLimitFilter;
 import com.google.common.util.concurrent.RateLimiter;
 import com.google.inject.Inject;
@@ -14,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.container.DynamicFeature;
 import javax.ws.rs.container.ResourceInfo;
 import javax.ws.rs.core.FeatureContext;
+import java.util.Map;
 
 
 /**
@@ -39,9 +39,10 @@ public class RateLimitRegistration implements DynamicFeature {
     RateLimit rateLimit = method.getAnnotation(RateLimit.class);
     RateLimitByGroup rateLimitByGroup = method.getAnnotation(RateLimitByGroup.class);
     RateLimitByHeader rateLimitByHeader = method.getAnnotation(RateLimitByHeader.class);
+    RateLimitByNamedHeader rateLimitByNamedHeader = method.getAnnotation(RateLimitByNamedHeader.class);
 
     try {
-      validate(rateLimit, rateLimitByGroup, rateLimitByHeader);
+      validate(rateLimit, rateLimitByGroup, rateLimitByHeader, rateLimitByNamedHeader);
     } catch (IllegalStateException ex) {
       if (method.getMethod().getName().equals("apply")) {
         logger.warn(ex.getMessage() + " for method " + method.getMethod().getName());
@@ -64,6 +65,34 @@ public class RateLimitRegistration implements DynamicFeature {
       registerRateLimitByHeader(method, rateLimitByHeader);
       featureContext.register(new RateLimitFilter(resourceInfo, rateLimitManager));
     }
+
+    if (Util.isPresent(rateLimitByNamedHeader)) {
+        registerRateLimitByNamedHeader(method, rateLimitByNamedHeader);
+        featureContext.register(new RateLimitFilter(resourceInfo, rateLimitManager));
+    }
+  }
+
+  private void registerRateLimitByNamedHeader(AnnotatedMethod method, RateLimitByNamedHeader rateLimitByNamedHeader) {
+    RateLimitKey rateLimitKey = new RateLimitKey();
+    rateLimitKey.setRateLimitAttribute(RateLimitAttribute.HEADER);
+    HeaderValueLimitMap headerValueLimitMap = rateLimitBundleConfiguration.getNamedHeaderLimits().get(rateLimitByNamedHeader.value());
+    if(headerValueLimitMap == null){
+        throw new IllegalStateException("namedHeaderLimits with name " + rateLimitByNamedHeader.value() + " not found in configuration for method" + method.getMethod().getName());
+    }
+
+    rateLimitKey.setAttributeValue(headerValueLimitMap.getHeader());
+
+    String key = null;
+    RateLimiter rateLimiter = null;
+    Map<String, Double> rateLimits = headerValueLimitMap.getLimits();
+    for (Map.Entry<String, Double> limit : rateLimits.entrySet()) {
+        key = method.getMethod().getName() + Constant.COLON + limit.getKey();
+        rateLimiter = RateLimiter.create(limit.getValue());
+        rateLimitManager.setRateLimiter(key, rateLimiter);
+    }
+
+    rateLimitManager.setRateLimitKey(method.getMethod().getName(), rateLimitKey);
+    logger.info("Key : {} RateLimiter : {} for method : {}", key, rateLimiter, method.getMethod().getName());
   }
 
   private void registerRateLimitByHeader(AnnotatedMethod method, RateLimitByHeader rateLimitByHeader) {
@@ -118,13 +147,19 @@ public class RateLimitRegistration implements DynamicFeature {
     logger.info("Key : {} RateLimiter : {} for method : {}", key, rateLimiter, method.getMethod().getName());
   }
 
-  private void validate(RateLimit rateLimit, RateLimitByGroup rateLimitByGroup, RateLimitByHeader rateLimitByHeader) {
+  private void validate(RateLimit rateLimit, RateLimitByGroup rateLimitByGroup, RateLimitByHeader rateLimitByHeader, RateLimitByNamedHeader rateLimitByNamedHeader) {
     boolean valid = false;
-    if (!Util.isPresent(rateLimit) && !Util.isPresent(rateLimitByGroup) && !Util.isPresent(rateLimitByHeader) || !Util.isPresent(rateLimit) && !Util.isPresent(rateLimitByGroup) && Util.isPresent(rateLimitByHeader) || !Util.isPresent(rateLimit) && Util.isPresent(rateLimitByGroup) && !Util.isPresent(rateLimitByHeader) || Util.isPresent(rateLimit) && !Util.isPresent(rateLimitByGroup) && !Util.isPresent(rateLimitByHeader)) {
+
+    boolean a = Util.isPresent(rateLimit);
+    boolean b = Util.isPresent(rateLimitByGroup);
+    boolean c = Util.isPresent(rateLimitByHeader);
+    boolean d = Util.isPresent(rateLimitByNamedHeader);
+
+    if ((a && !b && !c && !d) || (!a && b && !c && !d) || (!a && !b && c && !d) || (!a && !b && !c && d) || (!a && !b && !c && !d)) {
       valid = true;
     }
     if (!valid) {
-      throw new IllegalStateException("Atmost one annotation needs to be specified among [@RateLimit, @RateLimitByGroup and @RateLimitByHeader]");
+      throw new IllegalStateException("At most one annotation needs to be specified among [@RateLimit, @RateLimitByGroup, @RateLimitByHeader and @RateLimitByNamedHeader]");
     }
   }
 

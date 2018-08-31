@@ -5,7 +5,7 @@ import com.github.pradyothadavi.app.web.RateLimitByGroupDemoResource;
 import com.github.pradyothadavi.app.web.RateLimitByHeaderDemoResource;
 import com.github.pradyothadavi.app.web.RateLimitConfiguration;
 import com.github.pradyothadavi.app.web.RateLimitDemoResource;
-import com.github.pradyothadavi.core.RateLimitBundleConfiguration;
+import com.github.pradyothadavi.core.configuration.RateLimitBundleConfiguration;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;

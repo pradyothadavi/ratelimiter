@@ -1,5 +1,6 @@
 package com.github.pradyothadavi.core;
 
+import com.github.pradyothadavi.core.configuration.RateLimitBundleConfiguration;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;

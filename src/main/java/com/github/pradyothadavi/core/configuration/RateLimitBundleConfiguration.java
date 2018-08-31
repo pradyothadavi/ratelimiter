@@ -1,4 +1,4 @@
-package com.github.pradyothadavi.core;
+package com.github.pradyothadavi.core.configuration;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,6 +11,8 @@ public class RateLimitBundleConfiguration {
     private Map<String,Double> groupLimits = new HashMap<String, Double>();
 
     private Map<String,Double> namedLimits = new HashMap<String, Double>();
+
+    private Map<String, HeaderValueLimitMap> namedHeaderLimits = new HashMap<String, HeaderValueLimitMap>();
 
     public Map<String, Double> getGroupLimits() {
         return groupLimits;
@@ -26,6 +28,14 @@ public class RateLimitBundleConfiguration {
 
     public void setNamedLimits(Map<String, Double> namedLimits) {
         this.namedLimits = namedLimits;
+    }
+
+    public void setNamedHeaderLimits(Map<String, HeaderValueLimitMap> namedHeaderLimits){
+        this.namedHeaderLimits = namedHeaderLimits;
+    }
+
+    public Map<String, HeaderValueLimitMap> getNamedHeaderLimits() {
+        return namedHeaderLimits;
     }
 
     public Double getGroupLimit(String group){

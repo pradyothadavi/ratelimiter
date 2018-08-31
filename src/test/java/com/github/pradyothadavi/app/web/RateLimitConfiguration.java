@@ -1,7 +1,7 @@
 package com.github.pradyothadavi.app.web;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.github.pradyothadavi.core.RateLimitBundleConfiguration;
+import com.github.pradyothadavi.core.configuration.RateLimitBundleConfiguration;
 import io.dropwizard.Configuration;
 
 /**
