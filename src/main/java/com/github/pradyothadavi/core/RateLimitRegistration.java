@@ -6,20 +6,25 @@ import com.github.pradyothadavi.core.configuration.RateLimitBundleConfiguration;
 import com.github.pradyothadavi.filter.RateLimitFilter;
 import com.google.common.util.concurrent.RateLimiter;
 import com.google.inject.Inject;
-import org.glassfish.jersey.server.model.AnnotatedMethod;
+import com.sun.jersey.api.model.AbstractMethod;
+import com.sun.jersey.spi.container.ContainerRequestFilter;
+import com.sun.jersey.spi.container.ContainerResponseFilter;
+import com.sun.jersey.spi.container.ResourceFilter;
+import com.sun.jersey.spi.container.ResourceFilterFactory;
+import io.dropwizard.jersey.setup.JerseyEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.container.DynamicFeature;
-import javax.ws.rs.container.ResourceInfo;
-import javax.ws.rs.core.FeatureContext;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 
 /**
  * Created by pradyot.ha on 20/04/17.
  */
-public class RateLimitRegistration implements DynamicFeature {
+public class RateLimitRegistration implements ResourceFilterFactory {
 
   private static final Logger logger = LoggerFactory.getLogger(RateLimitRegistration.class);
 
@@ -32,9 +37,8 @@ public class RateLimitRegistration implements DynamicFeature {
     this.rateLimitBundleConfiguration = rateLimitBundleConfiguration;
   }
 
-  public void configure(ResourceInfo resourceInfo, FeatureContext featureContext) {
-
-    AnnotatedMethod method = new AnnotatedMethod(resourceInfo.getResourceMethod());
+  public List<ResourceFilter> create(AbstractMethod abstractMethod) {
+    Method method = abstractMethod.getMethod();
 
     RateLimit rateLimit = method.getAnnotation(RateLimit.class);
     RateLimitByGroup rateLimitByGroup = method.getAnnotation(RateLimitByGroup.class);
@@ -44,40 +48,57 @@ public class RateLimitRegistration implements DynamicFeature {
     try {
       validate(rateLimit, rateLimitByGroup, rateLimitByHeader, rateLimitByNamedHeader);
     } catch (IllegalStateException ex) {
-      if (method.getMethod().getName().equals("apply")) {
-        logger.warn(ex.getMessage() + " for method " + method.getMethod().getName());
+      if (method.getName().equals("apply")) {
+        logger.warn(ex.getMessage() + " for method " + method.getName());
       } else {
-        throw new IllegalStateException(ex.getMessage() + " for method " + method.getMethod().getName() + " in " + resourceInfo.getResourceClass().getCanonicalName());
+        throw new IllegalStateException(ex.getMessage() + " for method " + method.getName() + " in " + method.getDeclaringClass());
       }
     }
 
     if (Util.isPresent(rateLimit)) {
       registerRateLimit(method, rateLimit);
-      featureContext.register(new RateLimitFilter(resourceInfo, rateLimitManager));
+      return Arrays.asList(getResourceFilter(new RateLimitFilter(rateLimitManager, abstractMethod)));
     }
 
     if (Util.isPresent(rateLimitByGroup)) {
       registerRateLimitByGroup(method, rateLimitByGroup);
-      featureContext.register(new RateLimitFilter(resourceInfo, rateLimitManager));
+      return Arrays.asList(getResourceFilter(new RateLimitFilter(rateLimitManager, abstractMethod)));
     }
 
     if (Util.isPresent(rateLimitByHeader)) {
       registerRateLimitByHeader(method, rateLimitByHeader);
-      featureContext.register(new RateLimitFilter(resourceInfo, rateLimitManager));
+      return Arrays.asList(getResourceFilter(new RateLimitFilter(rateLimitManager, abstractMethod)));
     }
 
     if (Util.isPresent(rateLimitByNamedHeader)) {
-        registerRateLimitByNamedHeader(method, rateLimitByNamedHeader);
-        featureContext.register(new RateLimitFilter(resourceInfo, rateLimitManager));
+      registerRateLimitByNamedHeader(method, rateLimitByNamedHeader);
+      return Arrays.asList(getResourceFilter(new RateLimitFilter(rateLimitManager, abstractMethod)));
     }
+
+    return Arrays.asList();
   }
 
-  private void registerRateLimitByNamedHeader(AnnotatedMethod method, RateLimitByNamedHeader rateLimitByNamedHeader) {
+  private ResourceFilter getResourceFilter(RateLimitFilter rateLimitFilter){
+    final RateLimitFilter rateLimitFilterFinal = rateLimitFilter;
+    ResourceFilter resourceFilter = new ResourceFilter() {
+      public ContainerRequestFilter getRequestFilter() {
+        return rateLimitFilterFinal;
+      }
+
+      public ContainerResponseFilter getResponseFilter() {
+        return null;
+      }
+    };
+
+    return resourceFilter;
+  }
+
+  private void registerRateLimitByNamedHeader(Method method, RateLimitByNamedHeader rateLimitByNamedHeader) {
     RateLimitKey rateLimitKey = new RateLimitKey();
     rateLimitKey.setRateLimitAttribute(RateLimitAttribute.HEADER);
     HeaderValueLimitMap headerValueLimitMap = rateLimitBundleConfiguration.getNamedHeaderLimits().get(rateLimitByNamedHeader.value());
     if(headerValueLimitMap == null){
-        throw new IllegalStateException("namedHeaderLimits with name " + rateLimitByNamedHeader.value() + " not found in configuration for method" + method.getMethod().getName());
+        throw new IllegalStateException("namedHeaderLimits with name " + rateLimitByNamedHeader.value() + " not found in configuration for method" + method.getName());
     }
 
     rateLimitKey.setAttributeValue(headerValueLimitMap.getHeader());
@@ -86,16 +107,16 @@ public class RateLimitRegistration implements DynamicFeature {
     RateLimiter rateLimiter = null;
     Map<String, Double> rateLimits = headerValueLimitMap.getLimits();
     for (Map.Entry<String, Double> limit : rateLimits.entrySet()) {
-        key = method.getMethod().getName() + Constant.COLON + limit.getKey();
+        key = method.getName() + Constant.COLON + limit.getKey();
         rateLimiter = RateLimiter.create(limit.getValue());
         rateLimitManager.setRateLimiter(key, rateLimiter);
     }
 
-    rateLimitManager.setRateLimitKey(method.getMethod().getName(), rateLimitKey);
-    logger.info("Key : {} RateLimiter : {} for method : {}", key, rateLimiter, method.getMethod().getName());
+    rateLimitManager.setRateLimitKey(method.getName(), rateLimitKey);
+    logger.info("Key : {} RateLimiter : {} for method : {}", key, rateLimiter, method.getName());
   }
 
-  private void registerRateLimitByHeader(AnnotatedMethod method, RateLimitByHeader rateLimitByHeader) {
+  private void registerRateLimitByHeader(Method method, RateLimitByHeader rateLimitByHeader) {
     RateLimitKey rateLimitKey = new RateLimitKey();
     rateLimitKey.setRateLimitAttribute(RateLimitAttribute.HEADER);
     rateLimitKey.setAttributeValue(rateLimitByHeader.header());
@@ -107,9 +128,9 @@ public class RateLimitRegistration implements DynamicFeature {
 
       boolean atmostOneParam = Util.isEmpty(headerValue.nameLimit()) ^ Util.isZero(headerValue.ratePerSecond());
       if (!atmostOneParam) {
-        throw new IllegalStateException("Atmost one param(nameLimit and ratePerSecond) must be specified for @HeaderValue in method " + method.getMethod().getName());
+        throw new IllegalStateException("Atmost one param(nameLimit and ratePerSecond) must be specified for @HeaderValue in method " + method.getName());
       }
-      key = method.getMethod().getName() + Constant.COLON + headerValue.value();
+      key = method.getName() + Constant.COLON + headerValue.value();
       if (Util.isNotEmpty(headerValue.nameLimit())) {
         rateLimiter = RateLimiter.create(rateLimitBundleConfiguration.getNamedLimit(headerValue.nameLimit()));
       }
@@ -118,33 +139,33 @@ public class RateLimitRegistration implements DynamicFeature {
       }
       rateLimitManager.setRateLimiter(key, rateLimiter);
     }
-    rateLimitManager.setRateLimitKey(method.getMethod().getName(), rateLimitKey);
-    logger.info("Key : {} RateLimiter : {} for method : {}", key, rateLimiter, method.getMethod().getName());
+    rateLimitManager.setRateLimitKey(method.getName(), rateLimitKey);
+    logger.info("Key : {} RateLimiter : {} for method : {}", key, rateLimiter, method.getName());
   }
 
-  private void registerRateLimitByGroup(AnnotatedMethod method, RateLimitByGroup rateLimitByGroup) {
+  private void registerRateLimitByGroup(Method method, RateLimitByGroup rateLimitByGroup) {
     RateLimitKey rateLimitKey = new RateLimitKey();
     rateLimitKey.setRateLimitAttribute(RateLimitAttribute.GROUP);
     rateLimitKey.setAttributeValue(rateLimitByGroup.value());
 
     RateLimiter rateLimiter = RateLimiter.create(rateLimitBundleConfiguration.getGroupLimit(rateLimitByGroup.value()));
-    String key = method.getMethod().getName() + Constant.COLON + rateLimitByGroup.value();
+    String key = method.getName() + Constant.COLON + rateLimitByGroup.value();
 
     rateLimitManager.setRateLimiter(key, rateLimiter);
-    rateLimitManager.setRateLimitKey(method.getMethod().getName(), rateLimitKey);
-    logger.info("Key : {} RateLimiter : {} for method : {}", key, rateLimiter, method.getMethod().getName());
+    rateLimitManager.setRateLimitKey(method.getName(), rateLimitKey);
+    logger.info("Key : {} RateLimiter : {} for method : {}", key, rateLimiter, method.getName());
   }
 
-  private void registerRateLimit(AnnotatedMethod method, RateLimit rateLimit) {
+  private void registerRateLimit(Method method, RateLimit rateLimit) {
     RateLimitKey rateLimitKey = new RateLimitKey();
     rateLimitKey.setRateLimitAttribute(RateLimitAttribute.RPS);
 
     RateLimiter rateLimiter = RateLimiter.create(rateLimit.ratePerSecond());
-    String key = method.getMethod().getName();
+    String key = method.getName();
 
     rateLimitManager.setRateLimiter(key, rateLimiter);
-    rateLimitManager.setRateLimitKey(method.getMethod().getName(), rateLimitKey);
-    logger.info("Key : {} RateLimiter : {} for method : {}", key, rateLimiter, method.getMethod().getName());
+    rateLimitManager.setRateLimitKey(method.getName(), rateLimitKey);
+    logger.info("Key : {} RateLimiter : {} for method : {}", key, rateLimiter, method.getName());
   }
 
   private void validate(RateLimit rateLimit, RateLimitByGroup rateLimitByGroup, RateLimitByHeader rateLimitByHeader, RateLimitByNamedHeader rateLimitByNamedHeader) {

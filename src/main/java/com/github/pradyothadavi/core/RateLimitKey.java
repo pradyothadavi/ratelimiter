@@ -1,7 +1,8 @@
 package com.github.pradyothadavi.core;
 
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.container.ResourceInfo;
+import com.sun.jersey.spi.container.ContainerRequest;
+
+import java.lang.reflect.Method;
 
 /**
  * Created by pradyot.ha on 24/04/17.
@@ -27,19 +28,19 @@ public class RateLimitKey {
         this.attributeValue = attributeValue;
     }
 
-    public String computeKey(ResourceInfo resourceInfo,ContainerRequestContext containerRequestContext){
+    public String computeKey(Method method, ContainerRequest containerRequest){
         String key = null;
         switch (rateLimitAttribute){
             case RPS:
-                key = resourceInfo.getResourceMethod().getName();
+                key = method.getName();
                 break;
             case NAMED:
             case GROUP:
-                key = resourceInfo.getResourceMethod().getName()+Constant.COLON+attributeValue;
+                key = method.getName()+Constant.COLON+attributeValue;
                 break;
             case HEADER:
-                String headerValue = containerRequestContext.getHeaderString(attributeValue);
-                key = resourceInfo.getResourceMethod().getName()+Constant.COLON+headerValue;
+                String headerValue = containerRequest.getHeaderValue(attributeValue);
+                key = method.getName()+Constant.COLON+headerValue;
                 break;
         }
         return key;

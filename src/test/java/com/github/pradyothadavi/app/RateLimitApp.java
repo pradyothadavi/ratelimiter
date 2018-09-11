@@ -17,14 +17,8 @@ public class RateLimitApp extends Application<RateLimitConfiguration> {
 
     @Override
     public void initialize(Bootstrap<RateLimitConfiguration> bootstrap) {
-        super.initialize(bootstrap);
 
-        bootstrap.addBundle(new RateLimitBundle<RateLimitConfiguration>() {
-            @Override
-            protected RateLimitBundleConfiguration getRateLimitBundleConfiguration(RateLimitConfiguration configuration) {
-                return configuration.getRateLimitBundleConfiguration();
-            }
-        });
+
     }
 
     public void run(RateLimitConfiguration rateLimitConfiguration, Environment environment) throws Exception {
