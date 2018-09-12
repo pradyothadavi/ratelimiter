@@ -3,7 +3,7 @@
 
     <groupId>com.github.pradyothadavi</groupId>
     <artifactId>rate-limiter-bundle</artifactId>
-    <version>1.1.0.legacy</version>
+    <version>1.1.1.legacy-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>rate-limiter</name>
@@ -29,7 +29,7 @@
         <connection>scm:git:git@github.com:pradyothadavi/ratelimiter.git</connection>
         <developerConnection>scm:git:git@github.com:pradyothadavi/ratelimiter.git</developerConnection>
         <url>https://github.com/pradyothadavi/ratelimiter/tree/master</url>
-      <tag>rate-limiter-bundle-1.1.0.legacy</tag>
+      <tag>HEAD</tag>
   </scm>
 
     <distributionManagement>
