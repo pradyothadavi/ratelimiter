@@ -1,6 +1,6 @@
 package com.github.pradyothadavi;
 
-import com.github.pradyothadavi.core.RateLimitBundleConfiguration;
+import com.github.pradyothadavi.core.configuration.RateLimitBundleConfiguration;
 import com.github.pradyothadavi.core.RateLimitManager;
 import com.github.pradyothadavi.core.RateLimitModule;
 import com.google.inject.Guice;

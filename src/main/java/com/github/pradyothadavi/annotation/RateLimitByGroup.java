@@ -1,6 +1,6 @@
 package com.github.pradyothadavi.annotation;
 
-import com.github.pradyothadavi.core.RateLimitBundleConfiguration;
+import com.github.pradyothadavi.core.configuration.RateLimitBundleConfiguration;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -1,10 +1,9 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github.pradyothadavi</groupId>
     <artifactId>rate-limiter-bundle</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.3-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>rate-limiter</name>
@@ -27,19 +26,22 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git://github.com/pradyothadavi/ratelimiter.git</connection>
-        <developerConnection>scm:git:ssh://github.com:pradyothadavi/ratelimiter.git</developerConnection>
+        <connection>scm:git:git@github.com:pradyothadavi/ratelimiter.git</connection>
+        <developerConnection>scm:git:git@github.com:pradyothadavi/ratelimiter.git</developerConnection>
         <url>https://github.com/pradyothadavi/ratelimiter/tree/master</url>
-    </scm>
+      <tag>HEAD</tag>
+  </scm>
 
     <distributionManagement>
         <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <id>fk-art-snapshot</id>
+            <name>libs-snapshot</name>
+            <url>http://10.85.59.116/artifactory/v1.0/artifacts/libs-snapshots-local</url>
         </snapshotRepository>
         <repository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+            <id>fk-art-release</id>
+            <name>libs-rel</name>
+            <url>http://10.85.59.116/artifactory/v1.0/artifacts/libs-release-local</url>
         </repository>
     </distributionManagement>
 
@@ -64,13 +66,13 @@
         <dependency>
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-core</artifactId>
-            <version>1.0.5</version>
+            <version>1.1.0</version>
         </dependency>
 
         <dependency>
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-testing</artifactId>
-            <version>1.0.5</version>
+            <version>1.1.0</version>
         </dependency>
 
         <dependency>
@@ -107,17 +109,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.sonatype.plugins</groupId>
-                <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>1.6.7</version>
-                <extensions>true</extensions>
-                <configuration>
-                    <serverId>ossrh</serverId>
-                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

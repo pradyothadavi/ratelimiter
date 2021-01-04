@@ -1,5 +1,6 @@
 package com.github.pradyothadavi.filter;
 
+import com.github.pradyothadavi.core.RateLimitAttribute;
 import com.github.pradyothadavi.core.RateLimitKey;
 import com.github.pradyothadavi.core.RateLimitManager;
 import com.google.common.util.concurrent.RateLimiter;
@@ -37,6 +38,9 @@ public class RateLimitFilter implements ContainerRequestFilter {
           String rateLimiterKey = rateLimitKey.computeKey(resourceInfo,containerRequestContext);
           if(null != rateLimiterKey) {
             RateLimiter rateLimiter = rateLimitManager.getRateLimiter(rateLimiterKey);
+            if(rateLimitKey.getRateLimitAttribute() == RateLimitAttribute.HEADER && rateLimiter == null){
+                throw new WebApplicationException("Rate limit not configured for " + rateLimitKey.getRateLimitAttribute() + " " + rateLimitKey.getAttributeValue() + " " + rateLimiterKey, Response.status(Response.Status.FORBIDDEN).build());
+            }
             if(null != rateLimiter){
               if(!rateLimiter.tryAcquire()){
                 Exception cause = new IllegalAccessException("Too many requests trying to access "+resourceInfo.getResourceMethod().getName());

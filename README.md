@@ -17,6 +17,14 @@ rateLimiter:
     group: 15
   namedLimits:
     client1.ratelimit: 5
+  namedHeaderLimits:
+    rateConfig1:
+      header: X-Client-Id
+      limits:
+        client1: 15
+        client2: 20
+        null: 1
+
 ```
 
 ```java
@@ -108,6 +116,19 @@ public class RateLimitByHeaderDemoResource {
 
     @GET
     @RateLimitByHeader(header = "X-Client-Id", rateLimits = {@HeaderValue(value = "client1", nameLimit = "client1.ratelimit"),@HeaderValue(value = "client2", ratePerSecond = 20)})
+    public Response getSomething(){
+        return Response.ok().build();
+    }
+}
+```
+
+#### 4. Rate limiting individual API based on header from config
+```java
+@Path("/ratelimitbyheader")
+public class RateLimitByHeaderDemoResource {
+
+    @GET
+    @RateLimitByNamedHeader(rateConfig1)
     public Response getSomething(){
         return Response.ok().build();
     }
