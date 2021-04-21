@@ -18,12 +18,18 @@
         </license>
     </licenses>
 
-
+    <developers>
+        <developer>
+            <name>Pradyot H Adavi</name>
+            <email>adavi.pradyot89@gmail.com</email>
+            <organizationUrl>https://github.com/pradyothadavi</organizationUrl>
+        </developer>
+    </developers>
 
     <scm>
-        <connection>scm:git:git://github.com/davehun/ratelimiter.git</connection>
-        <developerConnection>scm:git:ssh://github.com:davehun/ratelimiter.git</developerConnection>
-        <url>https://github.com/github.com:davehun/ratelimiter/tree/master</url>
+        <connection>scm:git:git://github.com/pradyothadavi/ratelimiter.git</connection>
+        <developerConnection>scm:git:ssh://github.com:pradyothadavi/ratelimiter.git</developerConnection>
+        <url>https://github.com/github.com:pradyothadavi/ratelimiter/tree/master</url>
     </scm>
 
     <distributionManagement>
@@ -109,7 +115,7 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- <plugin>
+            <plugin>
                 <groupId>org.sonatype.plugins</groupId>
                 <artifactId>nexus-staging-maven-plugin</artifactId>
                 <version>1.6.8</version>
@@ -120,7 +126,7 @@
                     <autoReleaseAfterClose>true</autoReleaseAfterClose>
                 </configuration>
 </plugin>
-            -->
+            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
