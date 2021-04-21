@@ -1,7 +1,6 @@
 package com.github.pradyothadavi.annotation;
 
 import com.github.pradyothadavi.core.RateLimitBundleConfiguration;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -17,7 +16,7 @@ public @interface RateLimitByGroup {
 
     /**
      * Value is present in {@link RateLimitBundleConfiguration#groupLimits}
-     * @return
+     * @return String
      */
     String value();
 }
